@@ -1,0 +1,83 @@
+@page "/github"
+@rendermode InteractiveServer
+@using System.Net.Http
+
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<PageTitle>Displays a GitHub profile</PageTitle>
+
+<MudText Typo="Typo.h3" GutterBottom="true">GitHub user</MudText>
+<MudText Class="mb-8">This component fetches data from external api.</MudText>
+<MudTextField Label="Username" @bind-Value="@username" />
+<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="callApi">Fetch</MudButton>
+
+@if (user == null)
+{
+    <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+}
+else
+{
+    <MudMainContent class="ml-5">
+        <MudText Typo="Typo.h6" GutterBottom="true">@user.name</MudText>
+        <MudAvatar>
+            <img src="@user.avatar_url" alt="@user.login" />
+        </MudAvatar>
+    </MudMainContent>
+}
+
+@code {
+    public string username { get; set; }
+    private GitHubProfile user;
+    private HttpClient client;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Simulate asynchronous loading to demonstrate streaming rendering
+        await Task.Delay(500);
+        client = new HttpClient();
+
+        // Add user agent header
+        client.DefaultRequestHeaders.Add("User-Agent", "Blazor");
+
+        callApi();
+    }
+
+    public void callApi()
+    {
+        user = null;
+        
+        Task.Delay(500).ContinueWith(_ =>
+        {
+            InvokeAsync(async () =>
+            {
+                string username = this.username ?? "mudblazor";
+                string url = $"https://api.github.com/users/{username}";
+
+                try
+                {
+                    user = await client.GetFromJsonAsync<GitHubProfile>(url);
+                }
+                catch (HttpRequestException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+
+                StateHasChanged();
+            });
+        }).ContinueWith(_ => {
+            username = String.Empty;
+            InvokeAsync(() => StateHasChanged());
+        });
+    }
+
+    private class GitHubProfile
+    {
+        public string login { get; set; }
+        public string avatar_url { get; set; }
+        public string html_url { get; set; }
+        public string name { get; set; }
+
+    }
+}
