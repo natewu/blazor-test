@@ -38,3 +38,4 @@
 /mnt/01D49CDD9C1F27E0/code-linux/blazor/obj/Debug/net8.0/blazor.pdb
 /mnt/01D49CDD9C1F27E0/code-linux/blazor/obj/Debug/net8.0/blazor.genruntimeconfig.cache
 /mnt/01D49CDD9C1F27E0/code-linux/blazor/obj/Debug/net8.0/ref/blazor.dll
+/mnt/01D49CDD9C1F27E0/code-linux/blazor/obj/Debug/net8.0/blazor.sourcelink.json
