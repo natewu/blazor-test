@@ -10,8 +10,10 @@
 
 <MudText Typo="Typo.h3" GutterBottom="true">GitHub user</MudText>
 <MudText Class="mb-8">This component fetches data from external api.</MudText>
-<MudTextField Label="Username" @bind-Value="@username" />
-<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="callApi">Fetch</MudButton>
+<div Class="flex flex-row ml-5" style="display: flex">
+    <MudTextField Class="mr-10" Label="Username" @bind-Value="@username" />
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="callApi">Fetch</MudButton>
+</div>
 
 @if (user == null)
 {
@@ -20,10 +22,13 @@
 else
 {
     <MudMainContent class="ml-5">
-        <MudText Typo="Typo.h6" GutterBottom="true">@user.name</MudText>
-        <MudAvatar>
-            <img src="@user.avatar_url" alt="@user.login" style="width: auto; height: 100%"/>
-        </MudAvatar>
+        <MudLink Href="@user.html_url" Target="_blank">
+
+            <MudText Typo="Typo.h6" GutterBottom="true">@user.name</MudText>
+            <MudAvatar>
+                <img src="@user.avatar_url" alt="@user.login" style="width: auto; height: 100%"/>
+            </MudAvatar>
+        </MudLink>
     </MudMainContent>
 }
 
