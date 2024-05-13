@@ -22,7 +22,7 @@ else
     <MudMainContent class="ml-5">
         <MudText Typo="Typo.h6" GutterBottom="true">@user.name</MudText>
         <MudAvatar>
-            <img src="@user.avatar_url" alt="@user.login" />
+            <img src="@user.avatar_url" alt="@user.login" style="width: auto; height: 100%"/>
         </MudAvatar>
     </MudMainContent>
 }
@@ -47,7 +47,7 @@ else
     public void callApi()
     {
         user = null;
-        
+
         Task.Delay(500).ContinueWith(_ =>
         {
             InvokeAsync(async () =>
