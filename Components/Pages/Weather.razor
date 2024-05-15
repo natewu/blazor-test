@@ -1,5 +1,18 @@
 ﻿@page "/weather"
+@using System.Net.Http
 @rendermode InteractiveServer
+
+<style>
+    .selected {
+        background-color: #1E88E5 !important;
+    }
+    .selected > td {
+        color: white !important;
+    }
+    .selected > td .mud-input {
+        color: white !important;
+    }
+</style>
 
 <MudPopoverProvider />
 <MudDialogProvider />
@@ -16,48 +29,73 @@
 }
 else
 {
-    <MudTable Items="forecasts" Hover="true" SortLabel="Sort By" Elevation="0">
-        <HeaderContent>
-            <MudTh><MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<WeatherForecast, object>(x=>x.Date)">Date</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortBy="new Func<WeatherForecast, object>(x=>x.TemperatureC)">Temp. (C)</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortBy="new Func<WeatherForecast, object>(x=>x.TemperatureF)">Temp. (F)</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortBy="new Func<WeatherForecast, object>(x=>x.Summary!)">Summary</MudTableSortLabel></MudTh>
-        </HeaderContent>
-        <RowTemplate>
-            <MudTd DataLabel="Date">@context.Date</MudTd>
-            <MudTd DataLabel="Temp. (C)">@context.TemperatureC</MudTd>
-            <MudTd DataLabel="Temp. (F)">@context.TemperatureF</MudTd>
-            <MudTd DataLabel="Summary">@context.Summary</MudTd>
-        </RowTemplate>
-        <PagerContent>
-            <MudTablePager PageSizeOptions="new int[]{50, 100}" />
-        </PagerContent>
-    </MudTable>
+    <MudDataGrid Items="@forecasts" T="WeatherForecast" ReadOnly="@_readOnly" EditMode="@(_isCellEditMode ? DataGridEditMode.Cell : DataGridEditMode.Form)" 
+                StartedEditingItem="@StartedEditingItem" CanceledEditingItem="@CanceledEditingItem" CommittedItemChanges="@CommittedItemChanges">
+        <Columns>
+            <PropertyColumn  Property="x => x.Date" Title="Date" Editable="true" />
+            <PropertyColumn  Property="x => x.TemperatureC" Title="Temperature (C)" Editable="true"  />
+            <TemplateColumn Hidden="@(_isCellEditMode || _readOnly || _editTriggerRowClick)" CellClass="d-flex justify-end">
+                <CellTemplate>
+                        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@context.Actions.StartEditingItemAsync" />
+                </CellTemplate>
+            </TemplateColumn>
+        </Columns>
+    </MudDataGrid>
 }
-
-@code {
-    private WeatherForecast[]? forecasts;
+@code{
+    private WeatherForecast[] forecasts;
+    public WeatherForecast SelectedForecast { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         // Simulate asynchronous loading to demonstrate streaming rendering
         await Task.Delay(500);
-
-        var startDate = DateOnly.FromDateTime(DateTime.Now);
-        var summaries = new[] { "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching" };
-        forecasts = Enumerable.Range(1, 5).Select(index => new WeatherForecast
-        {
-            Date = startDate.AddDays(index),
-            TemperatureC = Random.Shared.Next(-20, 55),
-            Summary = summaries[Random.Shared.Next(summaries.Length)]
-        }).ToArray();
+        forecasts = GenerateWeatherForecast();
     }
 
-    private class WeatherForecast
+    public class WeatherForecast
     {
-        public DateOnly Date { get; set; }
+        public WeatherForecast(DateTime date, int temperatureC)
+        {
+            Date = date;
+            TemperatureC = temperatureC;
+        }
+        public DateTime Date { get; set; }
         public int TemperatureC { get; set; }
-        public string? Summary { get; set; }
-        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
     }
+
+    public WeatherForecast[] GenerateWeatherForecast()
+    {
+        var rng = new Random();
+        return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+        (
+            DateTime.Now.AddDays(index),
+            rng.Next(-20, 55)
+        ))
+        .ToArray();
+    }
+
+    private bool _readOnly = false;
+
+    private bool _isCellEditMode = false;
+    private bool _editTriggerRowClick;
+
+    private void StartedEditingItem(WeatherForecast item)
+    {
+        _isCellEditMode = true;
+        SelectedForecast = item;
+    }
+
+    private void CanceledEditingItem(WeatherForecast item)
+    {
+        _isCellEditMode = false;
+        SelectedForecast = null;
+    }
+
+    private void CommittedItemChanges(WeatherForecast item)
+    {
+        _isCellEditMode = false;
+        SelectedForecast = null;
+    }
+
 }
