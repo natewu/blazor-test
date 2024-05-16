@@ -1,6 +1,7 @@
 ﻿@page "/weather"
 @using System.Net.Http
 @rendermode InteractiveServer
+@inject ISnackbar Snackbar
 
 <style>
     .selected {
@@ -35,7 +36,7 @@ else
             <PropertyColumn Property="x => x.Date" Title="Date" />
             <PropertyColumn Title="Temp" Property="x => x.TemperatureC">
                 <CellTemplate Context="context">
-                    <MudTextField Typo="Typo.body1" @bind-Value="context.Item.TemperatureC" />
+                    <MudTextField Typo="Typo.body1" @bind-Value="context.Item.TemperatureC" onValueChanged="context.OnValueChanged" OnBlur="handleLeave" />
                 </CellTemplate>
             </PropertyColumn>
         </Columns>
@@ -107,5 +108,16 @@ else
     public void handleClick(){
         _isCellEditMode = !_isCellEditMode;
         StateHasChanged();
+    }
+
+    public void handleLeave(){
+        _isCellEditMode = false;
+        StateHasChanged();
+        Snackbar.Add("Saved changes", Severity.Success, config =>
+        {
+            config.VisibleStateDuration = 300;
+            config.HideTransitionDuration = 200;
+            config.ShowTransitionDuration = 200;
+        });
     }
 }
