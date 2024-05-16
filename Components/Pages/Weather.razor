@@ -33,17 +33,16 @@ else
                 StartedEditingItem="@StartedEditingItem" CanceledEditingItem="@CanceledEditingItem" CommittedItemChanges="@CommittedItemChanges">
         <Columns>
             <PropertyColumn Property="x => x.Date" Title="Date" />
-            <PropertyColumn Property="x => x.TemperatureC" Title="Temp"/>
-            <TemplateColumn Hidden="@(_isCellEditMode || _readOnly || _editTriggerRowClick)" CellClass="d-flex justify-end">
-                <CellTemplate>
-                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(handleClick)" />
+            <PropertyColumn Title="Temp" Property="x => x.TemperatureC">
+                <CellTemplate Context="context">
+                    <MudTextField Typo="Typo.body1" @bind-Value="context.Item.TemperatureC" />
                 </CellTemplate>
-            </TemplateColumn>
+            </PropertyColumn>
         </Columns>
     </MudDataGrid>
 }
 @code{
-    private WeatherForecast[] forecasts;
+    public WeatherForecast[] forecasts;
     public WeatherForecast SelectedForecast { get; set; }
 
     protected override async Task OnInitializedAsync()
@@ -62,6 +61,7 @@ else
         }
         public DateTime Date { get; set; }
         public int TemperatureC { get; set; }
+        
     }
 
     public WeatherForecast[] GenerateWeatherForecast()
@@ -100,6 +100,7 @@ else
         _isCellEditMode = false;
         SelectedForecast = null;
         StateHasChanged();
+        Console.WriteLine("Committed changes");
 
     }
 
