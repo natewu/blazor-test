@@ -18,8 +18,11 @@ public class UserService : IUserService{
     }
 
     public async Task<User> UpdateUser(User user){
-        var update = await _db.Update<int>("UPDATE public.users SET username=@Username, email=@Email, password=@Password", user);
-        return user;
+        var update = await _db.Update<int>(
+                "UPDATE public.users SET username=@Username, email=@Email WHERE id=@Id", 
+                new { user.Username, user.Email, user.Id }
+            );
+            return user;
     }
 
     public async Task<bool> DeleteUser(int key){
