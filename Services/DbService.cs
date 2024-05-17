@@ -14,11 +14,6 @@ public class DbService : IDbService{
         string username = _config["DB_USERNAME"];
         string password = _config["DB_PASSWORD"];
         string database = _config["DB_DATABASE"];
-        
-        Console.WriteLine($"Host: {host}");
-        Console.WriteLine($"Username: {username}");
-        Console.WriteLine($"Password: {password}");
-        Console.WriteLine($"Database: {database}");
 
         string connectionString = $"Host={host};Database={database};Username={username};Password={password}";
         _db = new NpgsqlConnection(connectionString);
