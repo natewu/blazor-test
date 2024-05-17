@@ -30,13 +30,25 @@
 }
 else
 {
-    <MudDataGrid Items="@forecasts" T="WeatherForecast" ReadOnly="@_readOnly" EditMode="@(_isCellEditMode ? DataGridEditMode.Cell : DataGridEditMode.Form)" 
-                StartedEditingItem="@StartedEditingItem" CanceledEditingItem="@CanceledEditingItem" CommittedItemChanges="@CommittedItemChanges">
+    <MudDataGrid Items="@forecasts" T="WeatherForecast" ReadOnly="@_readOnly">
         <Columns>
             <PropertyColumn Property="x => x.Date" Title="Date" />
             <PropertyColumn Title="Temp" Property="x => x.TemperatureC">
-                <CellTemplate Context="context">
-                    <MudTextField Typo="Typo.body1" @bind-Value="context.Item.TemperatureC" onValueChanged="context.OnValueChanged" OnBlur="handleLeave" />
+                <CellTemplate Context="context" >
+                    @if(context.Item.ShowEdit)
+                    {
+                        <MudNumericField 
+                            Typo="Typo.body1" 
+                            @bind-Value="context.Item.TemperatureC" 
+                            onValueChanged="context.OnValueChanged" 
+                            OnBlur="() => handleLeave(context.Item)"
+                            @onkeypress="e => handleEnterKeyPress(e, context.Item)"    
+                        />
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.body1"  @onclick="()=>context.Item.toggleEditMode()">@context.Item.TemperatureC</MudText>
+                    }
                 </CellTemplate>
             </PropertyColumn>
         </Columns>
@@ -62,7 +74,11 @@ else
         }
         public DateTime Date { get; set; }
         public int TemperatureC { get; set; }
-        
+        public bool ShowEdit { get; set; } = false;
+
+        public void toggleEditMode(){
+            ShowEdit = !ShowEdit;
+        }
     }
 
     public WeatherForecast[] GenerateWeatherForecast()
@@ -80,44 +96,33 @@ else
     private bool _isCellEditMode = false;
     private bool _editTriggerRowClick;
 
-    private void StartedEditingItem(WeatherForecast item)
-    {
-        _isCellEditMode = true;
-        SelectedForecast = item;
-        StateHasChanged();
-
-    }
-
-    private void CanceledEditingItem(WeatherForecast item)
-    {
-        _isCellEditMode = false;
-        SelectedForecast = null;
-        StateHasChanged();
-
-    }
-
-    private void CommittedItemChanges(WeatherForecast item)
-    {
-        _isCellEditMode = false;
-        SelectedForecast = null;
-        StateHasChanged();
-        Console.WriteLine("Committed changes");
-
-    }
-
     public void handleClick(){
         _isCellEditMode = !_isCellEditMode;
         StateHasChanged();
     }
 
-    public void handleLeave(){
-        _isCellEditMode = false;
+    public void toggleEditMode(){
+        _isCellEditMode = !_isCellEditMode;
         StateHasChanged();
-        Snackbar.Add("Saved changes", Severity.Success, config =>
+        Console.WriteLine("toggleEditMode");
+    }
+    public void handleLeave(WeatherForecast forecast){
+        forecast.toggleEditMode();
+        StateHasChanged();
+        Snackbar.Add("Saved", Severity.Success, config =>
         {
-            config.VisibleStateDuration = 300;
+            config.VisibleStateDuration = 500;
             config.HideTransitionDuration = 200;
             config.ShowTransitionDuration = 200;
         });
+    }
+
+    public void handleEnterKeyPress(KeyboardEventArgs e, WeatherForecast forecast){
+        Console.WriteLine("handleEnterKeyPress");
+        Console.WriteLine(e.Key);
+        if (e.Key == "Enter")
+        {
+            handleLeave(forecast);
+        }
     }
 }
