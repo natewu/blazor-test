@@ -1,0 +1,91 @@
+﻿@page "/users"
+@using blazor.Services
+@inject DbService DbService;
+@inject UserService UserService;
+@rendermode InteractiveServer
+@inject ISnackbar Snackbar
+
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<PageTitle>Users</PageTitle>
+
+@if(users == null)
+{
+    <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+}
+else
+{
+    <MudMainContent>
+        <MudContainer>
+            <MudDataGrid Items="@users" T="RenderedUser" PageSize="10" Sortable="true" Filterable="true" Search="true">
+                <Columns>
+                    <PropertyColumn Property="x => x.Id" Title="Id" />
+                    <PropertyColumn Property="x => x.Username" Title="Username" />
+                    <PropertyColumn Title="Email" Property="x => x.Email">
+                        <CellTemplate Context="context" >
+                            @if(context.Item.ShowEdit)
+                            {
+                                <MudTextField 
+                                    Typo="Typo.body1" 
+                                    @bind-Value="context.Item.Email" 
+                                    onValueChanged="context.OnValueChanged" 
+                                    OnBlur="async () => await handleLeave(context.Item)"
+                                />
+                            }
+                            else
+                            {
+                                <MudText Typo="Typo.body1"  @onclick="()=>context.Item.toggleEditMode()">@context.Item.Email</MudText>
+                            }
+                        </CellTemplate>
+                    </PropertyColumn>
+                </Columns>
+            </MudDataGrid>
+        </MudContainer>
+    </MudMainContent>
+}
+
+@code{
+    private List<RenderedUser> users { get; set; }
+    
+    protected override async Task OnInitializedAsync()
+    {
+        // Simulate asynchronous loading to demonstrate streaming rendering
+        await Task.Delay(500);
+        var fetchedUsers = await UserService.GetUsers();
+
+        // Turn into RenderedUser
+        users = fetchedUsers.Select(user => new RenderedUser
+        {
+            Id = user.Id,
+            Username = user.Username,
+            Email = user.Email
+        }).ToList();
+    }
+
+    public class RenderedUser : User{
+        public bool ShowEdit { get; set; } = false;
+
+        public void toggleEditMode(){
+            ShowEdit = !ShowEdit;
+        }
+    }
+
+    public async Task handleLeave(RenderedUser user){
+        user.toggleEditMode();
+
+        // Save changes
+        UserService.UpdateUser(user);
+
+        Snackbar.Add("Saved", Severity.Success, config =>
+        {
+            config.VisibleStateDuration = 500;
+            config.HideTransitionDuration = 200;
+            config.ShowTransitionDuration = 200;
+        });
+        StateHasChanged();
+
+        OnInitializedAsync();
+    }
+}
