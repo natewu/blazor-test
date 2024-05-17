@@ -48,12 +48,12 @@ else
         client.DefaultRequestHeaders.Add("User-Agent", "Blazor");
         
         // Write assembly link
-        Console.WriteLine("Assembly: " + typeof(Program).Assembly.GetName().Name);
         callApi();
     }
 
     public void callApi()
     {
+        Console.WriteLine("Fetching data from GitHub API");
         user = null;
 
         Task.Delay(500).ContinueWith(_ =>

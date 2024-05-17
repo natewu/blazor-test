@@ -1,8 +1,18 @@
 using blazor.Components;
 using MudBlazor.Services;
+using Dapper;
+using blazor.Services;
+
+DefaultTypeMap.MatchNamesWithUnderscores = true;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddHttpClient();
+
+builder.Services.AddScoped<IDbService, DbService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
+builder.Services.AddSingleton<DbService>();
+builder.Services.AddTransient<UserService>();
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
