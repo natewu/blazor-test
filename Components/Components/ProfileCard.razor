@@ -1,0 +1,26 @@
+@using blazor.Services
+
+<MudCard>
+    <MudCardContent>
+        <MudText Typo="Typo.h5">@User.Username</MudText>
+        <MudText Typo="Typo.body2">@User.Email</MudText>
+    </MudCardContent>
+    <MudCardActions>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled">Edit</MudButton>
+        <MudButton Color="Color.Secondary" Variant="Variant.Filled">Delete</MudButton>
+    </MudCardActions>
+</MudCard>
+    
+@code {
+    [Parameter] public User User { get; set; }
+    public void ViewProfile(){
+        Console.WriteLine("ViewProfile");
+    }
+
+    public class Coordinates
+    {
+        public double x { get; set; }
+        public double y { get; set; }
+    }
+}
+
