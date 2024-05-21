@@ -20,8 +20,14 @@ else
     <MudMainContent>
         <MudContainer>
             <MudDataGrid Items="@users" T="RenderedUser" PageSize="10" Sortable="true" Filterable="true" Search="true">
-                <Columns>
-                    <PropertyColumn Property="x => x.Id" Title="Id" />
+                <Columns >
+                    <PropertyColumn Property="x => x.Id" Title="Id">
+                        <CellTemplate Context="context" >
+                            <MudText Typo="Typo.body1" @onmouseover="() => ShowProfileCard(context.Item)" @onmouseout="HideProfileCard">
+                                @context.Item.Id
+                            </MudText>
+                        </CellTemplate>
+                    </PropertyColumn>
                     <PropertyColumn Property="x => x.Username" Title="Username" />
                     <PropertyColumn Title="Email" Property="x => x.Email">
                         <CellTemplate Context="context" >
@@ -46,8 +52,14 @@ else
     </MudMainContent>
 }
 
+<MudPopover Open="@profileCardVisible" AnchorOrigin="Origin.TopCenter" TransformOrigin="Origin.BottomCenter">
+    <blazor.Components.Components.ProfileCard User="@hoveredUser" />
+</MudPopover>
+
 @code{
     private List<RenderedUser> users { get; set; }
+    private bool profileCardVisible { get; set; } = false;
+    private RenderedUser hoveredUser { get; set; }
     
     protected override async Task OnInitializedAsync()
     {
@@ -85,5 +97,26 @@ else
             config.ShowTransitionDuration = 200;
         });
         StateHasChanged();
+    }
+
+    private Timer hoverTimer;
+
+    private void ShowProfileCard(RenderedUser user)
+    {
+        hoveredUser = user;
+        hoverTimer = new Timer(ShowPopover, null, 200, Timeout.Infinite);
+    }
+
+    private async void ShowPopover(object state)
+    {
+        profileCardVisible = true;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void HideProfileCard()
+    {
+        hoverTimer?.Dispose();
+        profileCardVisible = false;
+        InvokeAsync(StateHasChanged);
     }
 }
