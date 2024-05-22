@@ -27,15 +27,21 @@ else
                 <Columns >
                     <PropertyColumn Property="x => x.Id" Title="Id">
                         <CellTemplate Context="context">
-                            <MudText Typo="Typo.body1" 
-                                @onmouseover="() => ShowProfileCard(context.Item)" 
-                                @onmouseout="() => StartHideProfileCardTimer(context.Item)"
-                            >
+                            <MudText Typo="Typo.body1" @onmouseover="() => ShowProfileCard(context.Item)" @onmouseout="() => StartHideProfileCardTimer(context.Item)">
                                 @context.Item.Id
                             </MudText>
-                            @if(context.Item.ShowProfileCard)
+                            @if(userProfileShown != null && userProfileShown.Id == context.Item.Id && userProfileShown.ShowProfileCard)
                             {
-                                <blazor.Components.Components.ProfileCard User="context.Item" />
+                                <MudPopover 
+                                    Open="@((userProfileShown.Id == context.Item.Id) && userProfileShown.ShowProfileCard)" 
+                                    AnchorOrigin="Origin.BottomCenter" 
+                                    TransformOrigin="Origin.TopLeft" 
+                                    OnMouseOver="() => CancelHideProfileCardTimer(context.Item)" 
+                                    OnMouseOut="() => StartHideProfileCardTimer(context.Item)"
+                                    Class="@(userProfileShown.ShowProfileCard ? "" : "hidden")"
+                                >
+                                    <blazor.Components.Components.ProfileCard User="@userProfileShown" />
+                                </MudPopover>
                             }
                         </CellTemplate>
                     </PropertyColumn>
@@ -66,7 +72,7 @@ else
 @code {
     private List<RenderedUser> users { get; set; }
     private RenderedUser userProfileShown { get; set; }
-    public Timer hoverTimer;
+    private Timer hoverTimer;
 
     protected override async Task OnInitializedAsync()
     {
@@ -81,6 +87,27 @@ else
             Username = user.Username,
             Email = user.Email
         }).ToList();
+    }
+
+    public class RenderedUser : User
+    {
+        public bool ShowEdit { get; set; } = false;
+        public bool ShowProfileCard { get; set; } = false;
+
+        public void ToggleEditMode()
+        {
+            ShowEdit = !ShowEdit;
+        }
+
+        public void DisplayProfileCard()
+        {
+            ShowProfileCard = true;
+        }
+
+        public void HideProfileCard()
+        {
+            ShowProfileCard = false;
+        }
     }
 
     public async Task HandleLeave(RenderedUser user)
@@ -103,25 +130,34 @@ else
     {
         if (userProfileShown != null)
         {
-            userProfileShown.ShowProfileCard = false;
+            userProfileShown.HideProfileCard();
+            userProfileShown = null;
         }
+
+        
+        
+        user.DisplayProfileCard();
         userProfileShown = user;
-        userProfileShown.ShowProfileCard = true;
-        StateHasChanged();
+        CancelHideProfileCardTimer(user);
+        InvokeAsync(StateHasChanged);
     }
-    public void StartHideProfileCardTimer(RenderedUser user)
+
+    private void StartHideProfileCardTimer(RenderedUser user)
+    {
+        CancelHideProfileCardTimer(user);
+        hoverTimer = new Timer(HideProfileCard, user, 2000, Timeout.Infinite);
+    }
+
+    private void CancelHideProfileCardTimer(RenderedUser user)
     {
         hoverTimer?.Dispose();
-        hoverTimer = new Timer(_ => HideProfileCard(user), null, 2000, Timeout.Infinite);
     }
-    private void HideProfileCard(RenderedUser user)
+
+    private void HideProfileCard(object state)
     {
-        if (userProfileShown == user)
-        {
-            userProfileShown.ShowProfileCard = false;
-            userProfileShown = null;
-            StateHasChanged();
-        }
+        var user = state as RenderedUser;
+        user?.HideProfileCard();
+        InvokeAsync(StateHasChanged);
     }
 }
 
