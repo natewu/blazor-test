@@ -1,7 +1,7 @@
 ﻿@page "/users"
 @using blazor.Services
-@inject DbService DbService;
-@inject UserService UserService;
+@inject DbService DbService
+@inject UserService UserService
 @rendermode InteractiveServer
 @inject ISnackbar Snackbar
 
@@ -10,7 +10,11 @@
 <MudSnackbarProvider />
 
 <PageTitle>Users</PageTitle>
-
+<style>
+    .hidden {
+        visibility: hidden;
+    }
+</style>
 @if(users == null)
 {
     <MudProgressCircular Color="Color.Default" Indeterminate="true" />
@@ -22,13 +26,17 @@ else
             <MudDataGrid Items="@users" T="RenderedUser" PageSize="10" Sortable="true" Filterable="true" Search="true">
                 <Columns >
                     <PropertyColumn Property="x => x.Id" Title="Id">
-                        <CellTemplate Context="context" >
-                            <MudText Typo="Typo.body1" @onmouseover="() => context.Item.DisplayProfileCard()" @onmouseout="() => context.Item.HideProfileCard()">
+                        <CellTemplate Context="context">
+                            <MudText Typo="Typo.body1" 
+                                @onmouseover="() => ShowProfileCard(context.Item)" 
+                                @onmouseout="() => StartHideProfileCardTimer(context.Item)"
+                            >
                                 @context.Item.Id
                             </MudText>
-                            <MudPopover Open="@context.Item.ShowProfileCard" AnchorOrigin="Origin.TopCenter" TransformOrigin="Origin.BottomCenter">
-                                <blazor.Components.Components.ProfileCard User="@context.Item" />
-                            </MudPopover>
+                            @if(context.Item.ShowProfileCard)
+                            {
+                                <blazor.Components.Components.ProfileCard User="context.Item" />
+                            }
                         </CellTemplate>
                     </PropertyColumn>
                     <PropertyColumn Property="x => x.Username" Title="Username" />
@@ -40,12 +48,12 @@ else
                                     Typo="Typo.body1" 
                                     @bind-Value="context.Item.Email" 
                                     onValueChanged="context.OnValueChanged" 
-                                    OnBlur="async () => await handleLeave(context.Item)"
+                                    OnBlur="async () => await HandleLeave(context.Item)"
                                 />
                             }
                             else
                             {
-                                <MudText Typo="Typo.body1"  @onclick="()=>context.Item.toggleEditMode()">@context.Item.Email</MudText>
+                                <MudText Typo="Typo.body1" @onclick="() => context.Item.ToggleEditMode()">@context.Item.Email</MudText>
                             }
                         </CellTemplate>
                     </PropertyColumn>
@@ -55,12 +63,11 @@ else
     </MudMainContent>
 }
 
-
-
-@code{
+@code {
     private List<RenderedUser> users { get; set; }
-    private RenderedUser hoveredUser { get; set; }
-    
+    private RenderedUser userProfileShown { get; set; }
+    public Timer hoverTimer;
+
     protected override async Task OnInitializedAsync()
     {
         // Simulate asynchronous loading to demonstrate streaming rendering
@@ -76,28 +83,12 @@ else
         }).ToList();
     }
 
-    public class RenderedUser : User{
-        public bool ShowEdit { get; set; } = false;
-        public bool ShowProfileCard { get; set; } = false;
-
-        public void toggleEditMode(){
-            ShowEdit = !ShowEdit;
-        }
-
-        public void DisplayProfileCard(){
-            ShowProfileCard = true;
-        }
-
-        public void HideProfileCard(){
-            ShowProfileCard = false;
-        }
-    }
-
-    public async Task handleLeave(RenderedUser user){
-        user.toggleEditMode();
+    public async Task HandleLeave(RenderedUser user)
+    {
+        user.ToggleEditMode();
 
         // Save changes
-        UserService.UpdateUser(user);
+        await UserService.UpdateUser(user);
 
         Snackbar.Add("Saved", Severity.Success, config =>
         {
@@ -108,24 +99,29 @@ else
         StateHasChanged();
     }
 
-    private Timer hoverTimer;
-
-    @* private void ShowProfileCard(RenderedUser user)
+    private void ShowProfileCard(RenderedUser user)
     {
-        hoveredUser = user;
-        hoverTimer = new Timer(ShowPopover, null, 200, Timeout.Infinite);
-    } *@
-
-    @* private async void ShowPopover(object state)
-    {
-        profileCardVisible = true;
-        await InvokeAsync(StateHasChanged);
-    } *@
-
-    @* private void HideProfileCard()
+        if (userProfileShown != null)
+        {
+            userProfileShown.ShowProfileCard = false;
+        }
+        userProfileShown = user;
+        userProfileShown.ShowProfileCard = true;
+        StateHasChanged();
+    }
+    public void StartHideProfileCardTimer(RenderedUser user)
     {
         hoverTimer?.Dispose();
-        profileCardVisible = false;
-        InvokeAsync(StateHasChanged);
-    } *@
+        hoverTimer = new Timer(_ => HideProfileCard(user), null, 2000, Timeout.Infinite);
+    }
+    private void HideProfileCard(RenderedUser user)
+    {
+        if (userProfileShown == user)
+        {
+            userProfileShown.ShowProfileCard = false;
+            userProfileShown = null;
+            StateHasChanged();
+        }
+    }
 }
+

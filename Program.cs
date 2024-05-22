@@ -7,7 +7,7 @@ DefaultTypeMap.MatchNamesWithUnderscores = true;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddHttpClient();
-
+builder.WebHost.UseWebRoot("wwwroot").UseStaticWebAssets();
 builder.Services.AddScoped<IDbService, DbService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddSingleton<IConfiguration>(builder.Configuration);

@@ -1,26 +1,63 @@
 @using blazor.Services
+@using MudBlazor
+@using blazor.Components.Pages
 
-<MudCard>
-    <MudCardContent>
-        <MudText Typo="Typo.h5">@User.Username</MudText>
-        <MudText Typo="Typo.body2">@User.Email</MudText>
-    </MudCardContent>
-    <MudCardActions>
-        <MudButton Color="Color.Primary" Variant="Variant.Filled">Edit</MudButton>
-        <MudButton Color="Color.Secondary" Variant="Variant.Filled">Delete</MudButton>
-    </MudCardActions>
-</MudCard>
-    
+<style>
+    .profile_card {
+        display: flex;
+        flex-flow: column;
+        padding: 0.5rem;
+    }
+    .actions {
+        display: flex !important;
+        flex-flow: column nowrap !important;
+        justify-content: space-between !important;
+    }
+    .mud-button-root {
+        margin-top: 0.5rem !important;
+    }
+    .mud-card-content {
+        padding: 0.5rem !important;
+    }
+</style>
+
+<MudPopover 
+    Open="true" 
+    AnchorOrigin="Origin.BottomCenter" 
+    TransformOrigin="Origin.TopLeft" 
+    Class="@(isOpen ? "" : "hidden")"
+    OnMouseOver="CancelHideProfileCardTimer" 
+    OnMouseOut="StartHideProfileCardTimer">
+    <MudCard class="profile_card">
+        <MudCardContent>
+            <MudText Typo="Typo.h5">@User.Username</MudText>
+            <MudText Typo="Typo.body2">@User.Email</MudText>
+        </MudCardContent>
+        <MudCardActions class="actions">
+            <MudButton Color="Color.Primary" Variant="Variant.Filled" Size="Size.Small" OnClick="ViewProfile" FullWidth>View Profile</MudButton>
+            <MudButton Color="Color.Secondary" Variant="Variant.Filled" Size="Size.Small" FullWidth>Delete</MudButton>
+        </MudCardActions>
+    </MudCard>
+</MudPopover>
+
 @code {
-    [Parameter] public User User { get; set; }
-    public void ViewProfile(){
+    [Parameter] public RenderedUser User { get; set; }
+    private bool isOpen => User?.ShowProfileCard ?? false;
+
+    [CascadingParameter] public Users Parent { get; set; }
+
+    private void CancelHideProfileCardTimer()
+    {
+        Parent?.hoverTimer?.Dispose();
+    }
+
+    private void StartHideProfileCardTimer()
+    {
+        Parent?.StartHideProfileCardTimer(User);
+    }
+
+    private void ViewProfile()
+    {
         Console.WriteLine("ViewProfile");
     }
-
-    public class Coordinates
-    {
-        public double x { get; set; }
-        public double y { get; set; }
-    }
 }
-

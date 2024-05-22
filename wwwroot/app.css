@@ -19,3 +19,7 @@
     --bs-nav-link-hover-color: var(--mud-palette-primary-darken) !important;
 }
 
+.profile_card{
+    display: flex;
+    background-color: black;
+}
