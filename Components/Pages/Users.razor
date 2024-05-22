@@ -23,9 +23,12 @@ else
                 <Columns >
                     <PropertyColumn Property="x => x.Id" Title="Id">
                         <CellTemplate Context="context" >
-                            <MudText Typo="Typo.body1" @onmouseover="() => ShowProfileCard(context.Item)" @onmouseout="HideProfileCard">
+                            <MudText Typo="Typo.body1" @onmouseover="() => context.Item.DisplayProfileCard()" @onmouseout="() => context.Item.HideProfileCard()">
                                 @context.Item.Id
                             </MudText>
+                            <MudPopover Open="@context.Item.ShowProfileCard" AnchorOrigin="Origin.TopCenter" TransformOrigin="Origin.BottomCenter">
+                                <blazor.Components.Components.ProfileCard User="@context.Item" />
+                            </MudPopover>
                         </CellTemplate>
                     </PropertyColumn>
                     <PropertyColumn Property="x => x.Username" Title="Username" />
@@ -52,13 +55,10 @@ else
     </MudMainContent>
 }
 
-<MudPopover Open="@profileCardVisible" AnchorOrigin="Origin.TopCenter" TransformOrigin="Origin.BottomCenter">
-    <blazor.Components.Components.ProfileCard User="@hoveredUser" />
-</MudPopover>
+
 
 @code{
     private List<RenderedUser> users { get; set; }
-    private bool profileCardVisible { get; set; } = false;
     private RenderedUser hoveredUser { get; set; }
     
     protected override async Task OnInitializedAsync()
@@ -78,9 +78,18 @@ else
 
     public class RenderedUser : User{
         public bool ShowEdit { get; set; } = false;
+        public bool ShowProfileCard { get; set; } = false;
 
         public void toggleEditMode(){
             ShowEdit = !ShowEdit;
+        }
+
+        public void DisplayProfileCard(){
+            ShowProfileCard = true;
+        }
+
+        public void HideProfileCard(){
+            ShowProfileCard = false;
         }
     }
 
@@ -101,22 +110,22 @@ else
 
     private Timer hoverTimer;
 
-    private void ShowProfileCard(RenderedUser user)
+    @* private void ShowProfileCard(RenderedUser user)
     {
         hoveredUser = user;
         hoverTimer = new Timer(ShowPopover, null, 200, Timeout.Infinite);
-    }
+    } *@
 
-    private async void ShowPopover(object state)
+    @* private async void ShowPopover(object state)
     {
         profileCardVisible = true;
         await InvokeAsync(StateHasChanged);
-    }
+    } *@
 
-    private void HideProfileCard()
+    @* private void HideProfileCard()
     {
         hoverTimer?.Dispose();
         profileCardVisible = false;
         InvokeAsync(StateHasChanged);
-    }
+    } *@
 }
