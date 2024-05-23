@@ -34,7 +34,13 @@ else
                     <PropertyColumn Property="x => x.Username" Title="Username" />
                     <PropertyColumn Title="Email" Property="x => x.Email">
                         <CellTemplate Context="context" >
-                            @if(context.Item.ShowEdit)
+                            <MudTextField 
+                                    Typo="Typo.body1" 
+                                    @bind-Value="context.Item.Email" 
+                                    onValueChanged="context.OnValueChanged" 
+                                    OnBlur="async () => await handleLeave(context.Item)"
+                                />
+                            @* @if(context.Item.ShowEdit)
                             {
                                 <MudTextField 
                                     Typo="Typo.body1" 
@@ -46,7 +52,7 @@ else
                             else
                             {
                                 <MudText Typo="Typo.body1"  @onclick="()=>context.Item.toggleEditMode()">@context.Item.Email</MudText>
-                            }
+                            } *@
                         </CellTemplate>
                     </PropertyColumn>
                 </Columns>
