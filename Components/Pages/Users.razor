@@ -21,14 +21,20 @@ else
         <MudContainer>
             <MudDataGrid Items="@users" T="RenderedUser" PageSize="10" Sortable="true" Filterable="true" Search="true">
                 <Columns >
-                    <PropertyColumn Property="x => x.Id" Title="Id">
-                        <CellTemplate Context="context" >
-                            <MudText Typo="Typo.body1" @onmouseover="() => context.Item.DisplayProfileCard()" @onmouseout="() => context.Item.HideProfileCard()">
-                                @context.Item.Id
-                            </MudText>
-                            <MudPopover Open="@context.Item.ShowProfileCard" AnchorOrigin="Origin.TopCenter" TransformOrigin="Origin.BottomCenter">
+                    <PropertyColumn Property="x => x.Id" Title="Icon">
+                        <CellTemplate>
+                            <MudIconButton  Icon="@Icons.Material.Filled.Person" Color="Color.Primary" OnClick="() => handleProfileClick(context.Item)" />
+                            <MudPopover Open="@context.Item.ShowProfileCard" AnchorOrigin="Origin.TopRight" TransformOrigin="Origin.BottomCenter">
                                 <blazor.Components.Components.ProfileCard User="@context.Item" />
                             </MudPopover>
+                        </CellTemplate>
+                    </PropertyColumn>
+                    <PropertyColumn Property="x => x.Id" Title="Id">
+                        <CellTemplate Context="context" >
+                            <MudText Typo="Typo.body1">
+                                @context.Item.Id
+                            </MudText>
+                            
                         </CellTemplate>
                     </PropertyColumn>
                     <PropertyColumn Property="x => x.Username" Title="Username" />
@@ -40,19 +46,6 @@ else
                                     onValueChanged="context.OnValueChanged" 
                                     OnBlur="async () => await handleLeave(context.Item)"
                                 />
-                            @* @if(context.Item.ShowEdit)
-                            {
-                                <MudTextField 
-                                    Typo="Typo.body1" 
-                                    @bind-Value="context.Item.Email" 
-                                    onValueChanged="context.OnValueChanged" 
-                                    OnBlur="async () => await handleLeave(context.Item)"
-                                />
-                            }
-                            else
-                            {
-                                <MudText Typo="Typo.body1"  @onclick="()=>context.Item.toggleEditMode()">@context.Item.Email</MudText>
-                            } *@
                         </CellTemplate>
                     </PropertyColumn>
                 </Columns>
@@ -65,7 +58,7 @@ else
 
 @code{
     private List<RenderedUser> users { get; set; }
-    private RenderedUser hoveredUser { get; set; }
+    private RenderedUser displayedProfile { get; set; }
     
     protected override async Task OnInitializedAsync()
     {
@@ -114,24 +107,30 @@ else
         StateHasChanged();
     }
 
-    private Timer hoverTimer;
+    public void DisplayProfileCard(RenderedUser user){
+        displayedProfile = user;
+        displayedProfile.DisplayProfileCard();
+        StateHasChanged();
+    }
 
-    @* private void ShowProfileCard(RenderedUser user)
-    {
-        hoveredUser = user;
-        hoverTimer = new Timer(ShowPopover, null, 200, Timeout.Infinite);
-    } *@
+    public void HideProfileCard(RenderedUser user){
+        displayedProfile = user;
+        displayedProfile.HideProfileCard();
+        StateHasChanged();
+    }
 
-    @* private async void ShowPopover(object state)
-    {
-        profileCardVisible = true;
-        await InvokeAsync(StateHasChanged);
-    } *@
-
-    @* private void HideProfileCard()
-    {
-        hoverTimer?.Dispose();
-        profileCardVisible = false;
-        InvokeAsync(StateHasChanged);
-    } *@
+    public void handleProfileClick(RenderedUser user){
+        if(displayedProfile != null){
+            if((displayedProfile.Id == user.Id) && displayedProfile.ShowProfileCard){
+                HideProfileCard(user);
+            }
+            else{
+                HideProfileCard(displayedProfile);
+                DisplayProfileCard(user);
+            }
+        }
+        else{
+            DisplayProfileCard(user);
+        }
+    }
 }
