@@ -34,8 +34,8 @@ else
                             {
                                 <MudPopover 
                                     Open="@((userProfileShown.Id == context.Item.Id) && userProfileShown.ShowProfileCard)" 
-                                    AnchorOrigin="Origin.BottomCenter" 
-                                    TransformOrigin="Origin.TopLeft" 
+                                    AnchorOrigin="Origin.TopCenter" 
+                                    TransformOrigin="Origin.BottomCenter" 
                                     OnMouseOver="() => CancelHideProfileCardTimer(context.Item)" 
                                     OnMouseOut="() => StartHideProfileCardTimer(context.Item)"
                                     Class="@(userProfileShown.ShowProfileCard ? "" : "hidden")"
