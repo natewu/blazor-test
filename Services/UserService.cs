@@ -13,8 +13,15 @@ public class UserService : IUserService{
     }
 
     public async Task<List<User>> GetUsers(){
-        var users = await _db.GetAll<User>("SELECT * FROM public.users", new {});
+        var users = await _db.GetAll<User>("SELECT id, username, email FROM public.users", new {});
+   
         return users;
+    }
+
+    public async Task<User> GetUserProfile(int key){
+        var user = await _db.GetAsync<User>("SELECT id, username, email, date_registered FROM public.users WHERE id=@Id", new {Id = key});
+        Console.WriteLine(user);
+        return user;
     }
 
     public async Task<User> UpdateUser(User user){
@@ -29,4 +36,4 @@ public class UserService : IUserService{
         var delete = await _db.Delete<int>("DELETE FROM public.users WHERE id=@Id", new {Id = key});
         return true;
     }
-}
+}   

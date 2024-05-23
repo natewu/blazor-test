@@ -1,26 +1,78 @@
 @using blazor.Services
+@inject DbService DbService;
+@inject UserService UserService;
+@rendermode InteractiveServer
 
-<MudCard>
-    <MudCardContent>
-        <MudText Typo="Typo.h5">@User.Username</MudText>
-        <MudText Typo="Typo.body2">@User.Email</MudText>
-    </MudCardContent>
-    <MudCardActions>
-        <MudButton Color="Color.Primary" Variant="Variant.Filled">Edit</MudButton>
-        <MudButton Color="Color.Secondary" Variant="Variant.Filled">Delete</MudButton>
-    </MudCardActions>
-</MudCard>
+<style>
+    .profile__card {
+        display: flex;
+        justify-content: space-between;
+        flex-flow: column;
+        width: 300px;
+        height: 300px;
+    }
+
+    .profile__header {
+        display: flex;
+        justify-content: space-between;
+        flex-flow: row;
+    }
+
     
+</style>
+@if(userProfile == null){
+    <MudCard>
+        <MudCardContent>
+            <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+        </MudCardContent>
+    </MudCard>
+}
+else{
+    <MudCard>
+        <MudCardContent Class="profile__card">
+            <div Class="profile__header">
+                <div Class="profile__info">
+                    <MudAvatar Size="Size.Large">
+                            <MudIcon Icon="@Icons.Material.Filled.Person" />
+                    </MudAvatar>
+                    <MudText Typo="Typo.h5">@userProfile.Username</MudText>
+                    <MudText Typo="Typo.body2">@userProfile.Email</MudText>
+                </div>
+                <div>
+                    <MudIconButton Icon="@Icons.Material.Filled.Close" OnClick="handleClose" />
+                </div>
+            </div>
+        </MudCardContent>
+        <MudCardContent>
+            <MudText Typo="Typo.body2">@userProfile.DateRegistered</MudText>
+        </MudCardContent>
+        <MudCardActions>
+            <MudButton Color="Color.Primary" Variant="Variant.Filled">Edit</MudButton>
+            <MudButton Color="Color.Secondary" Variant="Variant.Filled">Delete</MudButton>
+        </MudCardActions>
+    </MudCard>
+}    
+
 @code {
-    [Parameter] public User User { get; set; }
+    [Parameter] public RenderedUser User { get; set; }
+    [Parameter] public Action<RenderedUser> HideProfileCard { get; set; }
+
+    private User userProfile { get; set; }
+    
+    private async Task GetUserProfile(int userId){
+        userProfile = await UserService.GetUserProfile(userId);
+    }
+
+    protected override async Task OnInitializedAsync(){
+        await Task.Delay(100);
+        await GetUserProfile(User.Id);
+    }
     public void ViewProfile(){
         Console.WriteLine("ViewProfile");
     }
 
-    public class Coordinates
-    {
-        public double x { get; set; }
-        public double y { get; set; }
+    public void handleClose(){
+        HideProfileCard(User);
     }
 }
 

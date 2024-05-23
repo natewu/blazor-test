@@ -24,8 +24,8 @@ else
                     <PropertyColumn Property="x => x.Id" Title="Icon">
                         <CellTemplate>
                             <MudIconButton  Icon="@Icons.Material.Filled.Person" Color="Color.Primary" OnClick="() => handleProfileClick(context.Item)" />
-                            <MudPopover Open="@context.Item.ShowProfileCard" AnchorOrigin="Origin.TopRight" TransformOrigin="Origin.BottomCenter">
-                                <blazor.Components.Components.ProfileCard User="@context.Item" />
+                            <MudPopover Open="@context.Item.ShowProfileCard" AnchorOrigin="Origin.CenterRight" TransformOrigin="Origin.CenterCenter">
+                                <blazor.Components.Components.ProfileCard User="@context.Item" HideProfileCard="HideProfileCard" />
                             </MudPopover>
                         </CellTemplate>
                     </PropertyColumn>
@@ -75,22 +75,6 @@ else
         }).ToList();
     }
 
-    public class RenderedUser : User{
-        public bool ShowEdit { get; set; } = false;
-        public bool ShowProfileCard { get; set; } = false;
-
-        public void toggleEditMode(){
-            ShowEdit = !ShowEdit;
-        }
-
-        public void DisplayProfileCard(){
-            ShowProfileCard = true;
-        }
-
-        public void HideProfileCard(){
-            ShowProfileCard = false;
-        }
-    }
 
     public async Task handleLeave(RenderedUser user){
         user.toggleEditMode();

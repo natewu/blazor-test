@@ -1,8 +1,6 @@
 using Dapper;
-using System;
 using Npgsql;
 using System.Data;
-using Microsoft.Extensions.Configuration;
 
 namespace blazor.Services;
 public class DbService : IDbService{
@@ -17,12 +15,13 @@ public class DbService : IDbService{
 
         string connectionString = $"Host={host};Database={database};Username={username};Password={password}";
         _db = new NpgsqlConnection(connectionString);
+
     }
 
     public async Task<T> GetAsync<T>(string command, object parms){
         T result;
         result = (await _db.QueryAsync<T>(command,parms).ConfigureAwait(false)).FirstOrDefault();
-        return default;
+        return result;
     }
 
     public async Task<List<T>> GetAll<T>(string command, object parms){
