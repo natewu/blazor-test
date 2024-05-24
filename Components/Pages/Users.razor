@@ -11,28 +11,35 @@
 
 <PageTitle>Users</PageTitle>
 
-@if(users == null)
-{
-    <MudProgressCircular Color="Color.Default" Indeterminate="true" />
-}
-else
-{
-    <MudMainContent>
+<div class="user__tables">
+    @if(users == null)
+    {
+        <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+    }
+    else
+    {
         <MudContainer>
-            <MudDataGrid Items="@users" T="RenderedUser" PageSize="10" Sortable="true" Filterable="true" Search="true">
+            <MudDataGrid Items="@users" T="RenderedUser" PageSize="10" Sortable="true" Filterable="true" Search="true" ItemSize="10" ColumnResizeMode="ResizeMode.Column">
                 <Columns >
-                    <PropertyColumn Property="x => x.Id" Title="Id">
-                        <CellTemplate Context="context" >
-                            <MudText Typo="Typo.body1" @onmouseover="() => context.Item.DisplayProfileCard()" @onmouseout="() => context.Item.HideProfileCard()">
-                                @context.Item.Id
-                            </MudText>
-                            <MudPopover Open="@context.Item.ShowProfileCard" AnchorOrigin="Origin.TopCenter" TransformOrigin="Origin.BottomCenter">
-                                <blazor.Components.Components.ProfileCard User="@context.Item" />
+                    <PropertyColumn Property="x => x.Id" Title="Icon" HeaderStyle="max-width:50px;">
+                        <CellTemplate>
+                            <MudIconButton Size="Size.Small" Icon="@Icons.Material.Filled.Person" Color="Color.Primary" OnClick="() => handleProfileClick(context.Item)">
+                                
+                            </MudIconButton>
+                            <MudPopover Open="@context.Item.ShowProfileCard" AnchorOrigin="Origin.CenterRight" TransformOrigin="Origin.CenterCenter">
+                                <blazor.Components.Components.ProfileCard User="@context.Item" HideProfileCard="HideProfileCard" />
                             </MudPopover>
                         </CellTemplate>
                     </PropertyColumn>
+                    <PropertyColumn Property="x => x.Id" Title="Id">
+                        <CellTemplate Context="context" >
+                            <MudText Typo="Typo.body1">
+                                @context.Item.Id
+                            </MudText>
+                        </CellTemplate>
+                    </PropertyColumn>
                     <PropertyColumn Property="x => x.Username" Title="Username" />
-                    <PropertyColumn Title="Email" Property="x => x.Email">
+                    <PropertyColumn Title="Email" Property="x => x.Email"  HeaderStyle="min-width:200px">
                         <CellTemplate Context="context" >
                             <MudTextField 
                                     Typo="Typo.body1" 
@@ -40,32 +47,64 @@ else
                                     onValueChanged="context.OnValueChanged" 
                                     OnBlur="async () => await handleLeave(context.Item)"
                                 />
-                            @* @if(context.Item.ShowEdit)
-                            {
-                                <MudTextField 
-                                    Typo="Typo.body1" 
-                                    @bind-Value="context.Item.Email" 
-                                    onValueChanged="context.OnValueChanged" 
-                                    OnBlur="async () => await handleLeave(context.Item)"
-                                />
-                            }
-                            else
-                            {
-                                <MudText Typo="Typo.body1"  @onclick="()=>context.Item.toggleEditMode()">@context.Item.Email</MudText>
-                            } *@
+                        </CellTemplate>
+                    </PropertyColumn>
+                    <PropertyColumn Property="x => x.Id" Title="Score" HeaderStyle="min-width:30px !important; width: 90px !important;"  CellStyle="min-width: 90px;">
+                        <CellTemplate>
+                            <MudNumericField Typo="Typo.body1" DisableUnderLine Value="10"  />
                         </CellTemplate>
                     </PropertyColumn>
                 </Columns>
             </MudDataGrid>
         </MudContainer>
-    </MudMainContent>
-}
+        <MudContainer>
+            <MudDataGrid Items="@users" T="RenderedUser" PageSize="10" Sortable="true" Filterable="true" Search="true" ItemSize="10" ColumnResizeMode="ResizeMode.Column">
+                <Columns >
+                    <PropertyColumn Property="x => x.Id" Title="Icon" HeaderStyle="max-width:50px;">
+                        <CellTemplate>
+                            <MudIconButton Size="Size.Small" Icon="@Icons.Material.Filled.Person" Color="Color.Primary" OnClick="() => handleProfileClick(context.Item)">
+                                
+                            </MudIconButton>
+                            <MudPopover Open="@context.Item.ShowProfileCard" AnchorOrigin="Origin.CenterRight" TransformOrigin="Origin.CenterCenter">
+                                <blazor.Components.Components.ProfileCard User="@context.Item" HideProfileCard="HideProfileCard" />
+                            </MudPopover>
+                        </CellTemplate>
+                    </PropertyColumn>
+                    <PropertyColumn Property="x => x.Id" Title="Id">
+                        <CellTemplate Context="context" >
+                            <MudText Typo="Typo.body1">
+                                @context.Item.Id
+                            </MudText>
+                        </CellTemplate>
+                    </PropertyColumn>
+                    <PropertyColumn Property="x => x.Username" Title="Username" />
+                    <PropertyColumn Title="Email" Property="x => x.Email"  HeaderStyle="min-width:200px">
+                        <CellTemplate Context="context" >
+                            <MudTextField 
+                                    Typo="Typo.body1" 
+                                    @bind-Value="context.Item.Email" 
+                                    onValueChanged="context.OnValueChanged" 
+                                    OnBlur="async () => await handleLeave(context.Item)"
+                                />
+                        </CellTemplate>
+                    </PropertyColumn>
+                    <PropertyColumn Property="x => x.Id" Title="Score" HeaderStyle="min-width:30px !important; width: 90px !important;"  CellStyle="min-width: 90px;">
+                        <CellTemplate>
+                            <MudNumericField Typo="Typo.body1" DisableUnderLine Value="10"  />
+                        </CellTemplate>
+                    </PropertyColumn>
+                </Columns>
+            </MudDataGrid>
+        </MudContainer>
+    }
+</div>
+
 
 
 
 @code{
     private List<RenderedUser> users { get; set; }
-    private RenderedUser hoveredUser { get; set; }
+    private RenderedUser displayedProfile { get; set; }
     
     protected override async Task OnInitializedAsync()
     {
@@ -82,22 +121,6 @@ else
         }).ToList();
     }
 
-    public class RenderedUser : User{
-        public bool ShowEdit { get; set; } = false;
-        public bool ShowProfileCard { get; set; } = false;
-
-        public void toggleEditMode(){
-            ShowEdit = !ShowEdit;
-        }
-
-        public void DisplayProfileCard(){
-            ShowProfileCard = true;
-        }
-
-        public void HideProfileCard(){
-            ShowProfileCard = false;
-        }
-    }
 
     public async Task handleLeave(RenderedUser user){
         user.toggleEditMode();
@@ -114,24 +137,52 @@ else
         StateHasChanged();
     }
 
-    private Timer hoverTimer;
+    public void DisplayProfileCard(RenderedUser user){
+        displayedProfile = user;
+        displayedProfile.DisplayProfileCard();
+        StateHasChanged();
+    }
 
-    @* private void ShowProfileCard(RenderedUser user)
-    {
-        hoveredUser = user;
-        hoverTimer = new Timer(ShowPopover, null, 200, Timeout.Infinite);
-    } *@
+    public void HideProfileCard(RenderedUser user){
+        displayedProfile = user;
+        displayedProfile.HideProfileCard();
+        StateHasChanged();
+    }
 
-    @* private async void ShowPopover(object state)
-    {
-        profileCardVisible = true;
-        await InvokeAsync(StateHasChanged);
-    } *@
-
-    @* private void HideProfileCard()
-    {
-        hoverTimer?.Dispose();
-        profileCardVisible = false;
-        InvokeAsync(StateHasChanged);
-    } *@
+    public void handleProfileClick(RenderedUser user){
+        if(displayedProfile != null){
+            if((displayedProfile.Id == user.Id) && displayedProfile.ShowProfileCard){
+                HideProfileCard(user);
+            }
+            else{
+                HideProfileCard(displayedProfile);
+                DisplayProfileCard(user);
+            }
+        }
+        else{
+            DisplayProfileCard(user);
+        }
+    }
 }
+
+<style>
+    .mud-table-cell{
+        padding: 0.05rem 0.25rem 0.05rem 1rem !important;
+    }
+    .mud-input.mud-input-underline::before{
+        border-bottom: none !important;
+    }
+    .mud-input.mud-input-underline::after{
+        padding: 0 !important;
+    }
+
+    .score{
+        width: 100px !important;
+    }
+    .user__tables{
+        display: flex;
+        flex-flow: column;
+        justify-content: space-evenly;
+        height: 100%;
+    }
+</style>

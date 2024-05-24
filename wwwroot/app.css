@@ -19,3 +19,6 @@
     --bs-nav-link-hover-color: var(--mud-palette-primary-darken) !important;
 }
 
+body{
+    height: 100vh;
+}
