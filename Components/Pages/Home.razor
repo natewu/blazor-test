@@ -12,6 +12,7 @@
             <MudTextField Class="mr-10 mb-1" Label="Username" @bind-Value="@Username" />
             <MudTextField Class="mr-10 mb-1" Label="Password" @bind-Value="@Password" />
             <MudTextField Class="mr-10 mb-5" Label="Email" @bind-Value="@Email" />
+            <MudTextField Class="mr-10 mb-5" Label="Profile Image Link" @bind-Value="@ProfileImage" />
             <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="register">Register</MudButton>
         </div>
     </MudContainer>
@@ -21,6 +22,7 @@
     private string Username { get; set; }
     private string Password { get; set; }
     private string Email { get; set; }
+    private string ProfileImage { get; set; }
 
     public void register()
     {
@@ -30,6 +32,7 @@
         user.Username = Username;
         user.Password = Password;
         user.Email = Email;
+        user.ProfileImage = ProfileImage;
 
         UserService.CreateUser(user);
     }

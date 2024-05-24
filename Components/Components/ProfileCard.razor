@@ -33,7 +33,12 @@ else{
             <div Class="profile__header">
                 <div Class="profile__info">
                     <MudAvatar Size="Size.Large">
+                        @if(userProfile.ProfileImage != null){
+                            <MudImage Src="@userProfile.ProfileImage" />
+                        }
+                        else{
                             <MudIcon Icon="@Icons.Material.Filled.Person" />
+                        }
                     </MudAvatar>
                     <MudText Typo="Typo.h5">@userProfile.Username</MudText>
                     <MudText Typo="Typo.body2">@userProfile.Email</MudText>

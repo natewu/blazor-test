@@ -5,6 +5,7 @@ public class User{
     public string Password { get; set; }
 
     public DateTime DateRegistered { get; set; }
+    public string ProfileImage { get; set; }
 }
 
 public class RenderedUser : User{
