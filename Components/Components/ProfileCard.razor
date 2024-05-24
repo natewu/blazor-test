@@ -8,8 +8,21 @@
         display: flex;
         justify-content: space-between;
         flex-flow: column;
-        width: 200px;
+        width: auto;
         height: 200px;
+        padding{
+            padding: 0.5rem;
+        }
+        
+    }
+
+    .profile__info {
+        
+        h6,p{
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-wrap: nowrap;
+        }
     }
 
     .profile__header {
