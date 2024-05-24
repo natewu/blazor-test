@@ -11,17 +11,17 @@
 
 <PageTitle>Users</PageTitle>
 
-@if(users == null)
-{
-    <MudProgressCircular Color="Color.Default" Indeterminate="true" />
-}
-else
-{
-    <MudMainContent>
+<div class="user__tables">
+    @if(users == null)
+    {
+        <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+    }
+    else
+    {
         <MudContainer>
-            <MudDataGrid Items="@users" T="RenderedUser" PageSize="10" Sortable="true" Filterable="true" Search="true" ItemSize="10">
+            <MudDataGrid Items="@users" T="RenderedUser" PageSize="10" Sortable="true" Filterable="true" Search="true" ItemSize="10" ColumnResizeMode="ResizeMode.Column">
                 <Columns >
-                    <PropertyColumn Property="x => x.Id" Title="Icon">
+                    <PropertyColumn Property="x => x.Id" Title="Icon" HeaderStyle="max-width:50px;">
                         <CellTemplate>
                             <MudIconButton Size="Size.Small" Icon="@Icons.Material.Filled.Person" Color="Color.Primary" OnClick="() => handleProfileClick(context.Item)">
                                 
@@ -39,7 +39,7 @@ else
                         </CellTemplate>
                     </PropertyColumn>
                     <PropertyColumn Property="x => x.Username" Title="Username" />
-                    <PropertyColumn Title="Email" Property="x => x.Email" >
+                    <PropertyColumn Title="Email" Property="x => x.Email"  HeaderStyle="min-width:200px">
                         <CellTemplate Context="context" >
                             <MudTextField 
                                     Typo="Typo.body1" 
@@ -49,16 +49,56 @@ else
                                 />
                         </CellTemplate>
                     </PropertyColumn>
-                    <PropertyColumn Property="x => x.Id" Title="Score" Class="score">
+                    <PropertyColumn Property="x => x.Id" Title="Score" HeaderStyle="min-width:30px !important; width: 90px !important;"  CellStyle="min-width: 90px;">
                         <CellTemplate>
-                            <MudNumericField Typo="Typo.body1" DisableUnderLine Value="10"/>
+                            <MudNumericField Typo="Typo.body1" DisableUnderLine Value="10"  />
                         </CellTemplate>
                     </PropertyColumn>
                 </Columns>
             </MudDataGrid>
         </MudContainer>
-    </MudMainContent>
-}
+        <MudContainer>
+            <MudDataGrid Items="@users" T="RenderedUser" PageSize="10" Sortable="true" Filterable="true" Search="true" ItemSize="10" ColumnResizeMode="ResizeMode.Column">
+                <Columns >
+                    <PropertyColumn Property="x => x.Id" Title="Icon" HeaderStyle="max-width:50px;">
+                        <CellTemplate>
+                            <MudIconButton Size="Size.Small" Icon="@Icons.Material.Filled.Person" Color="Color.Primary" OnClick="() => handleProfileClick(context.Item)">
+                                
+                            </MudIconButton>
+                            <MudPopover Open="@context.Item.ShowProfileCard" AnchorOrigin="Origin.CenterRight" TransformOrigin="Origin.CenterCenter">
+                                <blazor.Components.Components.ProfileCard User="@context.Item" HideProfileCard="HideProfileCard" />
+                            </MudPopover>
+                        </CellTemplate>
+                    </PropertyColumn>
+                    <PropertyColumn Property="x => x.Id" Title="Id">
+                        <CellTemplate Context="context" >
+                            <MudText Typo="Typo.body1">
+                                @context.Item.Id
+                            </MudText>
+                        </CellTemplate>
+                    </PropertyColumn>
+                    <PropertyColumn Property="x => x.Username" Title="Username" />
+                    <PropertyColumn Title="Email" Property="x => x.Email"  HeaderStyle="min-width:200px">
+                        <CellTemplate Context="context" >
+                            <MudTextField 
+                                    Typo="Typo.body1" 
+                                    @bind-Value="context.Item.Email" 
+                                    onValueChanged="context.OnValueChanged" 
+                                    OnBlur="async () => await handleLeave(context.Item)"
+                                />
+                        </CellTemplate>
+                    </PropertyColumn>
+                    <PropertyColumn Property="x => x.Id" Title="Score" HeaderStyle="min-width:30px !important; width: 90px !important;"  CellStyle="min-width: 90px;">
+                        <CellTemplate>
+                            <MudNumericField Typo="Typo.body1" DisableUnderLine Value="10"  />
+                        </CellTemplate>
+                    </PropertyColumn>
+                </Columns>
+            </MudDataGrid>
+        </MudContainer>
+    }
+</div>
+
 
 
 
@@ -137,6 +177,12 @@ else
     }
 
     .score{
-        width: 10% !important;
+        width: 100px !important;
+    }
+    .user__tables{
+        display: flex;
+        flex-flow: column;
+        justify-content: space-evenly;
+        height: 100%;
     }
 </style>
