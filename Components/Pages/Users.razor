@@ -19,11 +19,13 @@ else
 {
     <MudMainContent>
         <MudContainer>
-            <MudDataGrid Items="@users" T="RenderedUser" PageSize="10" Sortable="true" Filterable="true" Search="true">
+            <MudDataGrid Items="@users" T="RenderedUser" PageSize="10" Sortable="true" Filterable="true" Search="true" ItemSize="10">
                 <Columns >
                     <PropertyColumn Property="x => x.Id" Title="Icon">
                         <CellTemplate>
-                            <MudIconButton  Icon="@Icons.Material.Filled.Person" Color="Color.Primary" OnClick="() => handleProfileClick(context.Item)" />
+                            <MudIconButton Size="Size.Small" Icon="@Icons.Material.Filled.Person" Color="Color.Primary" OnClick="() => handleProfileClick(context.Item)">
+                                
+                            </MudIconButton>
                             <MudPopover Open="@context.Item.ShowProfileCard" AnchorOrigin="Origin.CenterRight" TransformOrigin="Origin.CenterCenter">
                                 <blazor.Components.Components.ProfileCard User="@context.Item" HideProfileCard="HideProfileCard" />
                             </MudPopover>
@@ -34,11 +36,10 @@ else
                             <MudText Typo="Typo.body1">
                                 @context.Item.Id
                             </MudText>
-                            
                         </CellTemplate>
                     </PropertyColumn>
                     <PropertyColumn Property="x => x.Username" Title="Username" />
-                    <PropertyColumn Title="Email" Property="x => x.Email">
+                    <PropertyColumn Title="Email" Property="x => x.Email" >
                         <CellTemplate Context="context" >
                             <MudTextField 
                                     Typo="Typo.body1" 
@@ -46,6 +47,11 @@ else
                                     onValueChanged="context.OnValueChanged" 
                                     OnBlur="async () => await handleLeave(context.Item)"
                                 />
+                        </CellTemplate>
+                    </PropertyColumn>
+                    <PropertyColumn Property="x => x.Id" Title="Score" Class="score">
+                        <CellTemplate>
+                            <MudNumericField Typo="Typo.body1" DisableUnderLine Value="10"/>
                         </CellTemplate>
                     </PropertyColumn>
                 </Columns>
@@ -118,3 +124,19 @@ else
         }
     }
 }
+
+<style>
+    .mud-table-cell{
+        padding: 0.05rem 0.25rem 0.05rem 1rem !important;
+    }
+    .mud-input.mud-input-underline::before{
+        border-bottom: none !important;
+    }
+    .mud-input.mud-input-underline::after{
+        padding: 0 !important;
+    }
+
+    .score{
+        width: 10% !important;
+    }
+</style>

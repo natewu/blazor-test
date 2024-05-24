@@ -13,7 +13,7 @@ public class UserService : IUserService{
     }
 
     public async Task<List<User>> GetUsers(){
-        var users = await _db.GetAll<User>("SELECT id, username, email FROM public.users", new {});
+        var users = await _db.GetAll<User>("SELECT id, username, email, profile_image FROM public.users", new {});
    
         return users;
     }

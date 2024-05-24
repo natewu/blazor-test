@@ -8,8 +8,8 @@
         display: flex;
         justify-content: space-between;
         flex-flow: column;
-        width: 300px;
-        height: 300px;
+        width: 200px;
+        height: 200px;
     }
 
     .profile__header {
@@ -32,7 +32,7 @@ else{
         <MudCardContent Class="profile__card">
             <div Class="profile__header">
                 <div Class="profile__info">
-                    <MudAvatar Size="Size.Large">
+                    <MudAvatar Size="Size.Medium">
                         @if(userProfile.ProfileImage != null){
                             <MudImage Src="@userProfile.ProfileImage" />
                         }
@@ -40,7 +40,7 @@ else{
                             <MudIcon Icon="@Icons.Material.Filled.Person" />
                         }
                     </MudAvatar>
-                    <MudText Typo="Typo.h5">@userProfile.Username</MudText>
+                    <MudText Typo="Typo.h6">@userProfile.Username</MudText>
                     <MudText Typo="Typo.body2">@userProfile.Email</MudText>
                 </div>
                 <div>
@@ -53,7 +53,7 @@ else{
         </MudCardContent>
         <MudCardActions>
             <MudButton Color="Color.Primary" Variant="Variant.Filled">Edit</MudButton>
-            <MudButton Color="Color.Secondary" Variant="Variant.Filled">Delete</MudButton>
+            <MudButton Color="Color.Secondary" Variant="Variant.Filled" OnClick="deleteUser">Delete</MudButton>
         </MudCardActions>
     </MudCard>
 }    
@@ -78,6 +78,12 @@ else{
 
     public void handleClose(){
         HideProfileCard(User);
+    }
+
+    public async Task deleteUser(){
+        await UserService.DeleteUser(User.Id);
+        HideProfileCard(User);
+        Console.WriteLine("Deleted user");
     }
 }
 
