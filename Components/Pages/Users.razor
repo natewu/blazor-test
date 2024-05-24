@@ -26,7 +26,7 @@
                             <MudIconButton Size="Size.Small" Icon="@Icons.Material.Filled.Person" Color="Color.Primary" OnClick="() => handleProfileClick(context.Item)">
                                 
                             </MudIconButton>
-                            <MudPopover Open="@context.Item.ShowProfileCard" AnchorOrigin="Origin.CenterRight" TransformOrigin="Origin.CenterCenter">
+                            <MudPopover Open="@context.Item.ShowProfileCard" AnchorOrigin="Origin.CenterRight" TransformOrigin="Origin.CenterLeft">
                                 <blazor.Components.Components.ProfileCard User="@context.Item" HideProfileCard="HideProfileCard" />
                             </MudPopover>
                         </CellTemplate>
@@ -62,12 +62,7 @@
                 <Columns >
                     <PropertyColumn Property="x => x.Id" Title="Icon" HeaderStyle="max-width:50px;">
                         <CellTemplate>
-                            <MudIconButton Size="Size.Small" Icon="@Icons.Material.Filled.Person" Color="Color.Primary" OnClick="() => handleProfileClick(context.Item)">
-                                
-                            </MudIconButton>
-                            <MudPopover Open="@context.Item.ShowProfileCard" AnchorOrigin="Origin.CenterRight" TransformOrigin="Origin.CenterCenter">
-                                <blazor.Components.Components.ProfileCard User="@context.Item" HideProfileCard="HideProfileCard" />
-                            </MudPopover>
+                            <MudIconButton Size="Size.Small" Icon="@Icons.Material.Filled.Person" Color="Color.Primary"/>
                         </CellTemplate>
                     </PropertyColumn>
                     <PropertyColumn Property="x => x.Id" Title="Id">
