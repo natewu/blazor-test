@@ -1,3 +1,5 @@
+using MudBlazor;
+
 public class User{
     public int Id { get; set; }
     public string Username { get; set; }
@@ -11,6 +13,7 @@ public class User{
 public class RenderedUser : User{
     public bool ShowEdit { get; set; } = false;
     public bool ShowProfileCard { get; set; } = false;
+    public MudTextField<string> emailField { get; set; } = new MudTextField<string>();
 
     public void toggleEditMode(){
         ShowEdit = !ShowEdit;
