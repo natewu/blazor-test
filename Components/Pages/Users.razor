@@ -19,13 +19,11 @@
     else
     {
         <MudContainer>
-            <MudDataGrid Items="@users" T="RenderedUser" PageSize="10" Sortable="true" Filterable="true" Search="true" ItemSize="10" ColumnResizeMode="ResizeMode.Column">
+            <MudDataGrid @ref="grid" AfterScroll="OnAfterScroll" Class="datagrid" Height="40vh" FixedHeader="true" Items="@users" T="RenderedUser" PageSize="10" Sortable="true" Filterable="true" Search="true" ItemSize="10" ColumnResizeMode="ResizeMode.Column" >
                 <Columns >
                     <PropertyColumn Property="x => x.Id" Title="Icon" HeaderStyle="max-width:50px;">
                         <CellTemplate>
-                            <MudIconButton Size="Size.Small" Icon="@Icons.Material.Filled.Person" Color="Color.Primary" OnClick="() => handleProfileClick(context.Item)">
-                                
-                            </MudIconButton>
+                            <MudIconButton Size="Size.Small" Icon="@Icons.Material.Filled.Person" Color="Color.Primary" OnClick="() => handleProfileClick(context.Item)"/>
                             <MudPopover Open="@context.Item.ShowProfileCard" AnchorOrigin="Origin.CenterRight" TransformOrigin="Origin.CenterLeft">
                                 <blazor.Components.Components.ProfileCard User="@context.Item" HideProfileCard="HideProfileCard" />
                             </MudPopover>
@@ -34,19 +32,31 @@
                     <PropertyColumn Property="x => x.Id" Title="Id">
                         <CellTemplate Context="context" >
                             <MudText Typo="Typo.body1">
+                                @(context.Item.Id==0 ? "New User" : context.Item.Id)
                                 @context.Item.Id
                             </MudText>
                         </CellTemplate>
                     </PropertyColumn>
-                    <PropertyColumn Property="x => x.Username" Title="Username" />
+                    <PropertyColumn Property="x => x.Username" Title="Username">
+                        <CellTemplate Context="context" >
+                            <MudTextField 
+                                Typo="Typo.body1" 
+                                @bind-Value="context.Item.Username" 
+                                onValueChanged="context.OnValueChanged" 
+                                OnBlur="async () => await handleLeave(context.Item)"
+                                AutoFocus="context.Item.NewRow"
+                            />
+                        </CellTemplate>
+                    </PropertyColumn>
                     <PropertyColumn Title="Email" Property="x => x.Email"  HeaderStyle="min-width:200px">
                         <CellTemplate Context="context" >
                             <MudTextField 
-                                    Typo="Typo.body1" 
-                                    @bind-Value="context.Item.Email" 
-                                    onValueChanged="context.OnValueChanged" 
-                                    OnBlur="async () => await handleLeave(context.Item)"
-                                />
+                                @ref="context.Item.emailField"
+                                Typo="Typo.body1" 
+                                @bind-Value="context.Item.Email" 
+                                onValueChanged="context.OnValueChanged" 
+                                OnBlur="async () => await handleLeave(context.Item)"
+                            />
                         </CellTemplate>
                     </PropertyColumn>
                     <PropertyColumn Property="x => x.Id" Title="Score" HeaderStyle="min-width:30px !important; width: 90px !important;"  CellStyle="min-width: 90px;">
@@ -54,11 +64,22 @@
                             <MudNumericField Typo="Typo.body1" DisableUnderLine Value="10" HideSpinButtons="true" Step=0 />
                         </CellTemplate>
                     </PropertyColumn>
+                    <PropertyColumn Property="x => x.Id" Title="Dropdown" HeaderStyle="min-width:30px !important; width: 50px !important;"  CellStyle="min-width: 50px;">
+                        <CellTemplate>
+                            <MudSelect T="string"  Variant="Variant.Text" Dense>
+                                <MudSelectItem Value="@("Admin")" />
+                                <MudSelectItem Value="@("Moderator")" />
+                                <MudSelectItem Value="@("User")" />
+                            </MudSelect>
+                        </CellTemplate>
+                    </PropertyColumn>
                 </Columns>
             </MudDataGrid>
+            <MudButton Class="add__button" Variant="Variant.Filled" Color="Color.Primary" OnClick="AddNewRow">Add User</MudButton>
+            
         </MudContainer>
-        <MudContainer>
-            <MudDataGrid Items="@users" T="RenderedUser" PageSize="10" Sortable="true" Filterable="true" Search="true" ItemSize="10" ColumnResizeMode="ResizeMode.Column">
+        @* <MudContainer>
+            <MudDataGrid Class="datagrid" Height="40vh" FixedHeader="true" Items="@users" T="RenderedUser" PageSize="10" Sortable="true" Filterable="true" Search="true" ItemSize="10" ColumnResizeMode="ResizeMode.Column">
                 <Columns >
                     <PropertyColumn Property="x => x.Id" Title="Icon" HeaderStyle="max-width:50px;">
                         <CellTemplate>
@@ -76,11 +97,11 @@
                     <PropertyColumn Title="Email" Property="x => x.Email"  HeaderStyle="min-width:200px">
                         <CellTemplate Context="context" >
                             <MudTextField 
-                                    Typo="Typo.body1" 
-                                    @bind-Value="context.Item.Email" 
-                                    onValueChanged="context.OnValueChanged" 
-                                    OnBlur="async () => await handleLeave(context.Item)"
-                                />
+                                Typo="Typo.body1" 
+                                @bind-Value="context.Item.Email" 
+                                onValueChanged="context.OnValueChanged" 
+                                OnBlur="async () => await handleLeave(context.Item)"
+                            />
                         </CellTemplate>
                     </PropertyColumn>
                     <PropertyColumn Property="x => x.Id" Title="Score" HeaderStyle="min-width:30px !important; width: 90px !important;"  CellStyle="min-width: 90px;">
@@ -90,16 +111,15 @@
                     </PropertyColumn>
                 </Columns>
             </MudDataGrid>
-        </MudContainer>
+        </MudContainer> *@
     }
 </div>
-
-
 
 
 @code{
     private List<RenderedUser> users { get; set; }
     private RenderedUser displayedProfile { get; set; }
+    private MudDataGrid<RenderedUser> grid { get; set; }
     
     protected override async Task OnInitializedAsync()
     {
@@ -121,7 +141,13 @@
         user.toggleEditMode();
 
         // Save changes
-        UserService.UpdateUser(user);
+        if(user.NewRow){
+            user.NewRow = false;
+            await UserService.CreateUser(user);
+        }
+        else{
+            await UserService.UpdateUser(user);
+        }
 
         Snackbar.Add("Saved", Severity.Success, config =>
         {
@@ -158,6 +184,29 @@
             DisplayProfileCard(user);
         }
     }
+
+    private void AddNewRow()
+    {
+        if(users.Last().Username == string.Empty || users.Last().Email == string.Empty)
+        {
+            Snackbar.Add("Please fill the existing row.", Severity.Error);
+            return;
+        }
+
+        var newUser = new RenderedUser
+        {
+            Username = string.Empty,
+            Email = string.Empty,
+            ShowProfileCard = false,
+            NewRow = true
+        };
+        
+        users.Add(newUser);
+    
+        // get the last row from the grid
+        var lastRow = grid.Items.Last();
+        
+    }
 }
 
 <style>
@@ -179,5 +228,14 @@
         flex-flow: column;
         justify-content: space-evenly;
         height: 100%;
+    }
+
+    .add__button{
+        margin-top: 1rem;
+    }
+
+    .datagrid{
+        @* height: 20vh;
+        overflow: auto; *@
     }
 </style>
