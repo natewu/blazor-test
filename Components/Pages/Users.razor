@@ -32,11 +32,22 @@
                     <PropertyColumn Property="x => x.Id" Title="Id">
                         <CellTemplate Context="context" >
                             <MudText Typo="Typo.body1">
+                                @(context.Item.Id==0 ? "New User" : context.Item.Id)
                                 @context.Item.Id
                             </MudText>
                         </CellTemplate>
                     </PropertyColumn>
-                    <PropertyColumn Property="x => x.Username" Title="Username" />
+                    <PropertyColumn Property="x => x.Username" Title="Username">
+                        <CellTemplate Context="context" >
+                            <MudTextField 
+                                Typo="Typo.body1" 
+                                @bind-Value="context.Item.Username" 
+                                onValueChanged="context.OnValueChanged" 
+                                OnBlur="async () => await handleLeave(context.Item)"
+                                AutoFocus="context.Item.NewRow"
+                            />
+                        </CellTemplate>
+                    </PropertyColumn>
                     <PropertyColumn Title="Email" Property="x => x.Email"  HeaderStyle="min-width:200px">
                         <CellTemplate Context="context" >
                             <MudTextField 
@@ -45,7 +56,6 @@
                                 @bind-Value="context.Item.Email" 
                                 onValueChanged="context.OnValueChanged" 
                                 OnBlur="async () => await handleLeave(context.Item)"
-                                AutoFocus="context.Item.NewRow"
                             />
                         </CellTemplate>
                     </PropertyColumn>
@@ -111,7 +121,6 @@
     private RenderedUser displayedProfile { get; set; }
     private MudDataGrid<RenderedUser> grid { get; set; }
     
-    
     protected override async Task OnInitializedAsync()
     {
         // Simulate asynchronous loading to demonstrate streaming rendering
@@ -132,7 +141,13 @@
         user.toggleEditMode();
 
         // Save changes
-        UserService.UpdateUser(user);
+        if(user.NewRow){
+            user.NewRow = false;
+            await UserService.CreateUser(user);
+        }
+        else{
+            await UserService.UpdateUser(user);
+        }
 
         Snackbar.Add("Saved", Severity.Success, config =>
         {
