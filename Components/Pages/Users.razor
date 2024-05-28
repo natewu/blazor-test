@@ -45,12 +45,22 @@
                                 @bind-Value="context.Item.Email" 
                                 onValueChanged="context.OnValueChanged" 
                                 OnBlur="async () => await handleLeave(context.Item)"
+                                AutoFocus="context.Item.NewRow"
                             />
                         </CellTemplate>
                     </PropertyColumn>
                     <PropertyColumn Property="x => x.Id" Title="Score" HeaderStyle="min-width:30px !important; width: 90px !important;"  CellStyle="min-width: 90px;">
                         <CellTemplate>
                             <MudNumericField Typo="Typo.body1" DisableUnderLine Value="10" HideSpinButtons="true" Step=0 />
+                        </CellTemplate>
+                    </PropertyColumn>
+                    <PropertyColumn Property="x => x.Id" Title="Dropdown" HeaderStyle="min-width:30px !important; width: 50px !important;"  CellStyle="min-width: 50px;">
+                        <CellTemplate>
+                            <MudSelect T="string"  Variant="Variant.Text" Dense>
+                                <MudSelectItem Value="@("Admin")" />
+                                <MudSelectItem Value="@("Moderator")" />
+                                <MudSelectItem Value="@("User")" />
+                            </MudSelect>
                         </CellTemplate>
                     </PropertyColumn>
                 </Columns>
@@ -172,7 +182,8 @@
         {
             Username = string.Empty,
             Email = string.Empty,
-            ShowProfileCard = false
+            ShowProfileCard = false,
+            NewRow = true
         };
         
         users.Add(newUser);
@@ -180,8 +191,6 @@
         // get the last row from the grid
         var lastRow = grid.Items.Last();
         
-        Console.WriteLine(lastRow.Email);
-        lastRow.emailField.FocusAsync();
     }
 }
 
